@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inspirara Ultimate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CSS VARIABLES (Material Design 3) --- */
+        :root {
+            /* LIGHT THEME (Default) */
+            --primary: #6750A4;
+            --on-primary: #FFFFFF;
+            --primary-container: #EADDFF;
+            --on-primary-container: #21005D;
+            --surface: #FFFBFE;
+            --on-surface: #1C1B1F;
+            --surface-variant: #E7E0EC;
+            --on-surface-variant: #49454F;
+            --outline: #79747E;
+            --error: #B3261E;
+            --on-error: #FFFFFF;
+            
+            --elevation-1: 0px 1px 2px rgba(0,0,0,0.3), 0px 1px 3px 1px rgba(0,0,0,0.15);
+            --elevation-3: 0px 4px 8px 3px rgba(0,0,0,0.15), 0px 1px 3px rgba(0,0,0,0.3);
+            
+            --chip-bg: #E7E0EC;
+            --chip-text: #1D192B;
+            --chip-active: #6750A4;
+            --chip-active-text: #FFFFFF;
+        }
+
+        /* DARK THEME */
+        body.dark-mode {
+            --primary: #D0BCFF;
+            --on-primary: #381E72;
+            --primary-container: #4F378B;
+            --on-primary-container: #EADDFF;
+            --surface: #141218;
+            --on-surface: #E6E1E5;
+            --surface-variant: #49454F;
+            --on-surface-variant: #CAC4D0;
+            --outline: #938F99;
+            --error: #F2B8B5;
+            --on-error: #601410;
+            
+            --elevation-1: 0px 1px 2px rgba(255,255,255,0.1);
+            --elevation-3: 0px 4px 8px rgba(0,0,0,0.5);
+
+            --chip-bg: #49454F;
+            --chip-text: #E6E1E5;
+            --chip-active: #D0BCFF;
+            --chip-active-text: #381E72;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--surface);
+            color: var(--on-surface);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* --- HEADER --- */
+        header {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            background: var(--surface);
+            z-index: 10;
+            transition: background-color 0.3s;
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--on-surface);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .icon-btn:active { background: var(--surface-variant); }
+        .icon-btn.active-filter { 
+            background: var(--primary-container); 
+            color: var(--on-primary-container); 
+        }
+        
+        .icon-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+        /* --- CATEGORY CHIPS --- */
+        .category-bar {
+            padding: 8px 24px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none; /* Firefox */
+        }
+        .category-bar::-webkit-scrollbar { display: none; }
+
+        .chip {
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid var(--outline);
+            background: transparent;
+            color: var(--on-surface-variant);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .chip.active {
+            background: var(--chip-active);
+            color: var(--chip-active-text);
+            border-color: transparent;
+        }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            position: relative;
+            overflow-y: hidden;
+        }
+
+        .quote-wrapper {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Floating buttons on Quote Card */
+        .card-actions {
+            position: absolute;
+            top: -60px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            z-index: 5;
+        }
+
+        .action-btn {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--surface);
+            box-shadow: var(--elevation-1);
+            color: var(--outline);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, color 0.2s, background-color 0.3s;
+        }
+        
+        .action-btn:active { transform: scale(0.9); }
+        .action-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
+        .btn-fav.bookmarked { color: #B3261E; }
+        .btn-del:active { background: var(--error); color: var(--on-error); }
+
+        .quote-container {
+            width: 100%;
+            text-align: center;
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .quote-container.fade-out {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .quote-icon {
+            font-size: 64px;
+            color: var(--primary);
+            opacity: 0.15;
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+            line-height: 1;
+        }
+
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(20px, 5vw, 28px);
+            line-height: 1.4;
+            color: var(--on-surface);
+            margin-bottom: 20px;
+            font-weight: 600;
+            user-select: text;
+        }
+
+        .quote-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quote-author {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            color: var(--on-surface-variant);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .quote-category {
+            font-size: 11px;
+            background: var(--surface-variant);
+            color: var(--on-surface-variant);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            padding: 0 24px 40px 24px;
+            display: grid;
+            grid-template-columns: 64px 64px 1fr;
+            gap: 16px;
+            align-items: center;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .ctrl-btn {
+            height: 64px;
+            border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .ctrl-btn:active { transform: scale(0.95); }
+        .ctrl-btn svg { width: 28px; height: 28px; }
+
+        .btn-prev { background-color: var(--surface-variant); color: var(--on-surface-variant); }
+        .btn-prev:disabled { opacity: 0.3; pointer-events: none; }
+
+        .btn-add { background-color: var(--surface); color: var(--primary); border: 1px solid var(--outline); }
+
+        .btn-next {
+            background-color: var(--primary-container);
+            color: var(--on-primary-container);
+            box-shadow: var(--elevation-3);
+            border-radius: 28px;
+            height: 80px;
+        }
+        .btn-next svg { width: 32px; height: 32px; }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+            z-index: 100; padding: 24px;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-card {
+            background: var(--surface);
+            width: 100%; max-width: 360px;
+            border-radius: 24px;
+            box-shadow: var(--elevation-3);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+            display: flex; flex-direction: column;
+            max-height: 80vh; overflow: hidden;
+        }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+
+        /* Add Modal */
+        .add-content { padding: 24px; }
+        .modal-title { font-size: 20px; font-weight: 500; margin-bottom: 20px; color: var(--on-surface); }
+        .input-group { margin-bottom: 16px; }
+        .input-label { display: block; font-size: 11px; letter-spacing: 0.5px; color: var(--primary); margin-bottom: 6px; font-weight: 700; text-transform: uppercase; }
+        .input-field {
+            width: 100%; padding: 14px; border: 1px solid var(--outline);
+            border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 16px;
+            background: var(--surface); color: var(--on-surface); outline: none;
+        }
+        .input-field:focus { border-color: var(--primary); border-width: 2px; padding: 13px; }
+
+        .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+        .btn-text { background: none; border: none; color: var(--primary); font-weight: 600; padding: 10px 16px; border-radius: 20px; cursor: pointer; }
+        .btn-filled { background: var(--primary); color: var(--on-primary); border: none; font-weight: 600; padding: 10px 24px; border-radius: 20px; cursor: pointer; }
+
+        /* Library Modal */
+        .list-header { padding: 16px 24px; border-bottom: 1px solid var(--surface-variant); display: flex; justify-content: space-between; align-items: center; }
+        .list-body { overflow-y: auto; padding: 0; }
+        .list-item {
+            padding: 16px 24px; border-bottom: 1px solid var(--surface-variant);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .list-info { flex: 1; padding-right: 12px; cursor: pointer; }
+        .list-text { font-size: 14px; font-weight: 500; color: var(--on-surface); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .list-sub { font-size: 12px; color: var(--on-surface-variant); margin-top: 4px; display: flex; gap: 8px; align-items: center; }
+        .list-cat { background: var(--surface-variant); padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+        
+        .list-del-btn {
+            background: none; border: none; color: var(--error); cursor: pointer;
+            padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        }
+        .list-del-btn:active { background: rgba(179, 38, 30, 0.1); }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #322F35; color: #F5EFF7; padding: 14px 24px; border-radius: 12px;
+            font-size: 14px; opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 200;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background: var(--error); color: var(--on-error); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <!-- Theme Toggle -->
+        <button class="icon-btn" id="btn-theme" aria-label="Toggle Night Mode">
+            <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+        </button>
+
+        <h1>Inspirara</h1>
+
+        <div class="header-actions">
+            <!-- Filter Heart -->
+            <button class="icon-btn" id="btn-filter" aria-label="Filter Favorites">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </button>
+            <!-- Library List -->
+            <button class="icon-btn" id="btn-library" aria-label="Library List">
+                <svg viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Categories Scroll -->
+    <div class="category-bar" id="category-container">
+        <!-- Injected via JS -->
+    </div>
+
+    <main>
+        <div class="quote-wrapper">
+            <div class="card-actions">
+                <button class="action-btn btn-del" id="btn-delete" aria-label="Delete Quote">
+                    <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                </button>
+                <button class="action-btn btn-fav" id="btn-bookmark" aria-label="Bookmark">
+                    <svg viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>
+                </button>
+            </div>
+            
+            <div class="quote-container" id="quote-box">
+                <div class="quote-icon">“</div>
+                <div class="quote-text" id="display-text">Loading...</div>
+                <div class="quote-meta">
+                    <div class="quote-author" id="display-author">System</div>
+                    <div class="quote-category" id="display-category">Motivation</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="controls">
+        <button class="ctrl-btn btn-prev" id="btn-prev">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <button class="ctrl-btn btn-add" id="btn-add">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
+        <button class="ctrl-btn btn-next" id="btn-next">
+            <svg viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+        </button>
+    </div>
+
+    <!-- MODAL: ADD QUOTE -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-card">
+            <div class="add-content">
+                <div class="modal-title">New Insight</div>
+                
+                <div class="input-group">
+                    <label class="input-label">Category</label>
+                    <input type="text" class="input-field" id="input-category" list="category-list" placeholder="e.g. Work, Life, Study">
+                    <datalist id="category-list"></datalist>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Quote</label>
+                    <textarea class="input-field" id="input-quote" rows="3"></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label class="input-label">Author</label>
+                    <input type="text" class="input-field" id="input-author">
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-text" id="btn-cancel-add">Cancel</button>
+                    <button class="btn-filled" id="btn-save">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: LIBRARY -->
+    <div class="modal-overlay" id="library-modal">
+        <div class="modal-card" style="height: 70vh;">
+            <div class="list-header">
+                <span class="modal-title" style="margin:0;">All Quotes</span>
+                <button class="btn-text" id="btn-close-lib">Close</button>
+            </div>
+            <div class="list-body" id="library-list"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Notification</div>
+
+    <script>
+        // --- UTILS ---
+        const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+        // --- DATA ---
+        const defaultQuotes = [
+            { id: "1", text: "The only way to do great work is to love what you do.", author: "Steve Jobs", category: "Motivation" },
+            { id: "2", text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs", category: "Business" },
+            { id: "3", text: "Technology is best when it brings people together.", author: "Matt Mullenweg", category: "Tech" },
+            { id: "4", text: "It’s fine to celebrate success but it is more important to heed the lessons of failure.", author: "Bill Gates", category: "Business" },
+            { id: "5", text: "Physics is like sex: sure, it may give some practical results, but that's not why we do it.", author: "Richard Feynman", category: "Science" },
+            { id: "6", text: "Imagination is more important than knowledge.", author: "Albert Einstein", category: "Science" },
+            { id: "7", text: "Life is like riding a bicycle. To keep your balance, you must keep moving.", author: "Albert Einstein", category: "Life" },
+            { id: "8", text: "The roots of education are bitter, but the fruit is sweet.", author: "Aristotle", category: "Study" },
+            { id: "9", text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela", category: "Study" },
+            { id: "10", text: "Study hard what interests you the most in the most undisciplined, original and irreverent manner.", author: "Richard Feynman", category: "Study" }
+        ];
+
+        let state = {
+            quotes: [],
+            bookmarks: [],
+            history: [],
+            historyPointer: -1,
+            activeCategory: 'All',
+            filterBookmarks: false,
+            darkMode: false
+        };
+
+        // --- DOM ---
+        const els = {
+            body: document.body,
+            quoteBox: document.getElementById('quote-box'),
+            text: document.getElementById('display-text'),
+            author: document.getElementById('display-author'),
+            category: document.getElementById('display-category'),
+            catBar: document.getElementById('category-container'),
+            btnTheme: document.getElementById('btn-theme'),
+            btnFilter: document.getElementById('btn-filter'),
+            btnBookmark: document.getElementById('btn-bookmark'),
+            btnDelete: document.getElementById('btn-delete'),
+            btnNext: document.getElementById('btn-next'),
+            btnPrev: document.getElementById('btn-prev'),
+            btnLib: document.getElementById('btn-library'),
+            libList: document.getElementById('library-list'),
+            addModal: document.getElementById('add-modal'),
+            libModal: document.getElementById('library-modal'),
+            inputs: {
+                quote: document.getElementById('input-quote'),
+                author: document.getElementById('input-author'),
+                category: document.getElementById('input-category'),
+                datalist: document.getElementById('category-list')
+            }
+        };
+
+        // --- INIT ---
+        function init() {
+            // Load Data
+            try {
+                const storedQ = localStorage.getItem('inspirara_v3_quotes');
+                state.quotes = storedQ ? JSON.parse(storedQ) : [...defaultQuotes];
+                // Migrate: ensure categories exist
+                state.quotes.forEach(q => { if(!q.category) q.category = "General"; });
+                
+                const storedB = localStorage.getItem('inspirara_v3_bookmarks');
+                state.bookmarks = storedB ? JSON.parse(storedB) : [];
+
+                const storedTheme = localStorage.getItem('inspirara_theme');
+                if (storedTheme === 'dark') toggleTheme(true);
+
+            } catch(e) { console.error(e); state.quotes = [...defaultQuotes]; }
+
+            renderCategories();
+            loadNextQuote();
+        }
+
+        function saveData() {
+            localStorage.setItem('inspirara_v3_quotes', JSON.stringify(state.quotes));
+            localStorage.setItem('inspirara_v3_bookmarks', JSON.stringify(state.bookmarks));
+        }
+
+        // --- LOGIC: FILTERING & SELECTION ---
+        
+        function getFilteredPool() {
+            let pool = state.quotes;
+            
+            // 1. Filter by Category
+            if (state.activeCategory !== 'All') {
+                pool = pool.filter(q => q.category === state.activeCategory);
+            }
+
+            // 2. Filter by Bookmarks (AND logic)
+            if (state.filterBookmarks) {
+                pool = pool.filter(q => state.bookmarks.includes(q.id));
+            }
+            
+            return pool;
+        }
+
+        function getCurrentQuote() {
+            if (state.historyPointer >= 0 && state.historyPointer < state.history.length) {
+                return state.quotes.find(q => q.id === state.history[state.historyPointer]);
+            }
+            return null;
+        }
+
+        function loadNextQuote() {
+            // History check
+            if (state.historyPointer < state.history.length - 1) {
+                state.historyPointer++;
+                const q = getCurrentQuote();
+                if(q) { renderQuote(q); return; }
+                // If history is invalid (deleted quote), continue to generate new
+            }
+
+            const pool = getFilteredPool();
+
+            if (pool.length === 0) {
+                if (state.filterBookmarks) {
+                    showToast("No bookmarks here! Switching filters off.", true);
+                    state.filterBookmarks = false;
+                    els.btnFilter.classList.remove('active-filter');
+                    loadNextQuote(); // Retry
+                } else {
+                    renderEmpty();
+                }
+                return;
+            }
+
+            // Random Logic
+            let newItem;
+            let attempts = 0;
+            const currentId = getCurrentQuote() ? getCurrentQuote().id : null;
+            
+            do {
+                const idx = Math.floor(Math.random() * pool.length);
+                newItem = pool[idx];
+                attempts++;
+            } while (newItem.id === currentId && pool.length > 1 && attempts < 5);
+
+            state.history.push(newItem.id);
+            state.historyPointer++;
+            renderQuote(newItem);
+        }
+
+        function loadPrevQuote() {
+            if (state.historyPointer > 0) {
+                state.historyPointer--;
+                const q = getCurrentQuote();
+                if (q) renderQuote(q);
+                else loadPrevQuote(); // Skip deleted ones in history
+            }
+        }
+
+        function deleteQuote(id) {
+            // 1. Remove from data
+            state.quotes = state.quotes.filter(q => q.id !== id);
+            state.bookmarks = state.bookmarks.filter(bid => bid !== id);
+            
+            // 2. Save
+            saveData();
+            
+            // 3. UI Updates
+            showToast("Quote Deleted");
+            
+            // If deleting current quote visible on screen
+            const current = getCurrentQuote();
+            if (current && current.id === id) {
+                // Remove from history to avoid back-navigating to it
+                // Actually simpler to just load next, history will contain dead ID but logic skips dead IDs
+                loadNextQuote();
+            }
+
+            // If in Library, refresh
+            if (els.libModal.classList.contains('active')) {
+                renderLibraryList();
+            }
+            
+            // Refresh categories in case that was the last quote of a category
+            renderCategories();
+        }
+
+        // --- RENDERERS ---
+
+        function renderQuote(q) {
+            els.quoteBox.classList.add('fade-out');
+            
+            setTimeout(() => {
+                els.text.textContent = q.text;
+                els.author.textContent = q.author;
+                els.category.textContent = q.category;
+                
+                // Update Heart
+                const isFav = state.bookmarks.includes(q.id);
+                els.btnBookmark.classList.toggle('bookmarked', isFav);
+                els.btnBookmark.innerHTML = isFav 
+                    ? '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
+                    : '<svg viewBox="0 0 24 24"><path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/></svg>';
+
+                els.btnPrev.disabled = state.historyPointer <= 0;
+                
+                els.quoteBox.classList.remove('fade-out');
+            }, 300);
+        }
+
+        function renderEmpty() {
+            els.text.textContent = "No quotes found in this category.";
+            els.author.textContent = "";
+            els.category.textContent = "";
+        }
+
+        function renderCategories() {
+            // Get unique categories
+            const cats = new Set(['All']);
+            state.quotes.forEach(q => cats.add(q.category));
+            
+            els.catBar.innerHTML = '';
+            
+            // Populate Datalist for Add Modal
+            els.inputs.datalist.innerHTML = '';
+
+            cats.forEach(c => {
+                // Chip
+                const chip = document.createElement('button');
+                chip.className = `chip ${state.activeCategory === c ? 'active' : ''}`;
+                chip.textContent = c;
+                chip.onclick = () => {
+                    state.activeCategory = c;
+                    renderCategories(); // Re-render to update active class
+                    loadNextQuote();
+                };
+                els.catBar.appendChild(chip);
+
+                // Datalist Option (skip All)
+                if (c !== 'All') {
+                    const opt = document.createElement('option');
+                    opt.value = c;
+                    els.inputs.datalist.appendChild(opt);
+                }
+            });
+        }
+
+        function toggleTheme(forceDark) {
+            state.darkMode = forceDark !== undefined ? forceDark : !state.darkMode;
+            if (state.darkMode) {
+                els.body.classList.add('dark-mode');
+                localStorage.setItem('inspirara_theme', 'dark');
+            } else {
+                els.body.classList.remove('dark-mode');
+                localStorage.setItem('inspirara_theme', 'light');
+            }
+        }
+
+        // --- EVENTS ---
+
+        // Theme
+        els.btnTheme.onclick = () => toggleTheme();
+
+        // Filters
+        els.btnFilter.onclick = () => {
+            state.filterBookmarks = !state.filterBookmarks;
+            els.btnFilter.classList.toggle('active-filter', state.filterBookmarks);
+            showToast(state.filterBookmarks ? "Showing Favorites Only" : "Showing All");
+            loadNextQuote();
+        };
+
+        // Quote Actions
+        els.btnNext.onclick = loadNextQuote;
+        els.btnPrev.onclick = loadPrevQuote;
+        
+        els.btnBookmark.onclick = () => {
+            const q = getCurrentQuote();
+            if(!q) return;
+            const idx = state.bookmarks.indexOf(q.id);
+            if(idx === -1) {
+                state.bookmarks.push(q.id);
+                showToast("Saved to Favorites");
+            } else {
+                state.bookmarks.splice(idx, 1);
+                showToast("Removed from Favorites");
+            }
+            saveData();
+            renderQuote(q); // Update icon
+        };
+
+        els.btnDelete.onclick = () => {
+            const q = getCurrentQuote();
+            if(!q) return;
+            if(confirm("Delete this quote permanently?")) {
+                deleteQuote(q.id);
+            }
+        };
+
+        // Modals
+        els.addModal.onclick = (e) => { if(e.target===els.addModal) els.addModal.classList.remove('active'); };
+        document.getElementById('btn-add').onclick = () => {
+            els.addModal.classList.add('active');
+            els.inputs.category.value = state.activeCategory !== 'All' ? state.activeCategory : '';
+        };
+        document.getElementById('btn-cancel-add').onclick = () => els.addModal.classList.remove('active');
+        
+        document.getElementById('btn-save').onclick = () => {
+            const txt = els.inputs.quote.value.trim();
+            const aut = els.inputs.author.value.trim() || "Anonymous";
+            const cat = els.inputs.category.value.trim() || "General";
+            
+            if(txt) {
+                const newQ = { id: generateId(), text: txt, author: aut, category: cat };
+                state.quotes.push(newQ);
+                saveData();
+                renderCategories(); // Update chips if new category
+                els.addModal.classList.remove('active');
+                els.inputs.quote.value = '';
+                els.inputs.author.value = '';
+                
+                // Show new quote
+                state.activeCategory = cat; // Switch to that category
+                state.history.push(newQ.id);
+                state.historyPointer++;
+                renderCategories(); // Update active chip visual
+                renderQuote(newQ);
+                showToast("Quote Added");
+            }
+        };
+
+        // Library
+        els.libModal.onclick = (e) => { if(e.target===els.libModal) els.libModal.classList.remove('active'); };
+        els.btnLib.onclick = () => {
+            renderLibraryList();
+            els.libModal.classList.add('active');
+        };
+        document.getElementById('btn-close-lib').onclick = () => els.libModal.classList.remove('active');
+
+        function renderLibraryList() {
+            els.libList.innerHTML = '';
+            const pool = state.quotes; // Show all in library? Or filtered? Let's show all for management.
+            
+            if(pool.length === 0) {
+                els.libList.innerHTML = '<div style="padding:20px;text-align:center;color:var(--outline)">Empty</div>';
+                return;
+            }
+
+            pool.forEach(q => {
+                const el = document.createElement('div');
+                el.className = 'list-item';
+                el.innerHTML = `
+                    <div class="list-info">
+                        <div class="list-text">${q.text}</div>
+                        <div class="list-sub">
+                            <span class="list-cat">${q.category}</span>
+                            <span>${q.author}</span>
+                        </div>
+                    </div>
+                    <button class="list-del-btn">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                    </button>
+                `;
+                
+                // Click Text -> View
+                el.querySelector('.list-info').onclick = () => {
+                    els.libModal.classList.remove('active');
+                    state.activeCategory = 'All'; // Reset cat filter to find it easily
+                    renderCategories();
+                    state.history.push(q.id);
+                    state.historyPointer++;
+                    renderQuote(q);
+                };
+
+                // Click Trash -> Delete
+                el.querySelector('.list-del-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    if(confirm("Delete this?")) deleteQuote(q.id);
+                };
+
+                els.libList.appendChild(el);
+            });
+        }
+
+        function showToast(msg, isError=false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = isError ? 'toast show error' : 'toast show';
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        init();
+
+    </script>
+</body>
+</html>
+
+
